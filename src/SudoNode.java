@@ -6,12 +6,52 @@ public class SudoNode {
     SudoNode parent;
     int[][] cells;
     ArrayList[][] domains;
+    
+    public SudoNode(int[][] cells){
+        parent=null;
+        this.cells = cells;
+        domains = new ArrayList[9][];
+        for(int i=0; 9>i; i++){
+            domains[i] = new ArrayList[9];
+            for(int j=0; 9>j; j++){
+                domains[i][j] = new ArrayList();
+                for(int k=0; 9>k; k++) domains[i][j].add(k+1);
+            }
+        }
+        
+        for(int i=0; 9>i; i++){
+            for(int j=0; 9>j; j++){
+                if(cells[i][j] != 0){
+                    domains[i][j] = null;
+                    continue;
+                }
+                
+                for(int k=0; 9>k; k++) if(k!=j) domains[i][j].remove((Object) cells[i][k]);
+                for(int k=0; 9>k; k++) if(k!=i) domains[i][j].remove((Object) cells[k][j]);
+
+                int sr = ((int)(i/3))*3;
+                int sc = ((int)(j/3))*3;
+                for(int m=0; 3>m; m++){
+                    for(int n=0; 3>n; n++){
+                        if((sr+m)!=i && (sc+n)!=j) domains[i][j].remove((Object) cells[sr+m][sc+n]);
+                    }
+                }              
+            }
+        }
+    }
 
     public SudoNode() {
+        parent=null;
         cells = new int[9][];
         for(int i=0; 9>i; i++) cells[i] = new int[9];
         domains = new ArrayList[9][];
-        for(int i=0; 9>i; i++) domains[i] = new ArrayList[9];
+        for(int i=0; 9>i; i++){
+            domains[i] = new ArrayList[9];
+            for(int j=0; 9>j; j++){
+                domains[i][j] = new ArrayList();
+                for(int k=0; 9>k; k++) domains[i][j].add(k+1);
+            }
+        }
     }
     
     public void printSudoku(){
@@ -47,7 +87,7 @@ public class SudoNode {
     
     public void inputSudoku(){
         StylishPrinter.println("Entering Sudoku", StylishPrinter.BOLD_RED);
-        System.out.println("Help: Enter row, column, value or 0 to end!");
+        System.out.println("Help: Enter <row,column,value> or <10> to reset sudoku or <0> to end!");
         
         while(true){
             System.out.println();
@@ -58,6 +98,8 @@ public class SudoNode {
             while(true){
                 String inpStr = new Scanner(System.in).nextLine().trim();
                 if(inpStr.equals("0")) return;
+                if(inpStr.equals("10")) break;
+                
                 String[] strs = inpStr.split(" ");
                 if(strs.length != 3){
                     System.out.print("Wrong input format! try again: ");
