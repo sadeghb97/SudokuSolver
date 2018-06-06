@@ -12,5 +12,9 @@ public class SudokuSolver {
     public static void main(String[] args) {
         SudoNode sn = new SudoNode(SudokuDatas.getSudoku(1));
         sn.printSudoku();
+        System.out.println("\n\n");
+        
+        System.out.println("Res:");
+        SudokuSolutions.forwardCheckingWithMVR(sn).printSudoku();
     }
 }

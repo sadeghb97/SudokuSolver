@@ -3,41 +3,23 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class SudoNode {
-    SudoNode parent;
-    int[][] cells;
-    ArrayList[][] domains;
+    private SudoNode parent;
+    private int[][] cells;
+    private ArrayList[][] domains;
+
+    public SudoNode getParent() { return parent;}
+    public int[][] getCells() { return cells;}
+    public ArrayList[][] getDomains() { return domains;}
+    
+    public SudoNode(SudoNode parent, int[][] cells, ArrayList[][] domains){
+        this.parent = parent;
+        this.cells = cells;
+        this.domains = domains;
+    }
     
     public SudoNode(int[][] cells){
-        parent=null;
         this.cells = cells;
-        domains = new ArrayList[9][];
-        for(int i=0; 9>i; i++){
-            domains[i] = new ArrayList[9];
-            for(int j=0; 9>j; j++){
-                domains[i][j] = new ArrayList();
-                for(int k=0; 9>k; k++) domains[i][j].add(k+1);
-            }
-        }
-        
-        for(int i=0; 9>i; i++){
-            for(int j=0; 9>j; j++){
-                if(cells[i][j] != 0){
-                    domains[i][j] = null;
-                    continue;
-                }
-                
-                for(int k=0; 9>k; k++) if(k!=j) domains[i][j].remove((Object) cells[i][k]);
-                for(int k=0; 9>k; k++) if(k!=i) domains[i][j].remove((Object) cells[k][j]);
-
-                int sr = ((int)(i/3))*3;
-                int sc = ((int)(j/3))*3;
-                for(int m=0; 3>m; m++){
-                    for(int n=0; 3>n; n++){
-                        if((sr+m)!=i && (sc+n)!=j) domains[i][j].remove((Object) cells[sr+m][sc+n]);
-                    }
-                }              
-            }
-        }
+        clean();
     }
 
     public SudoNode() {
@@ -52,6 +34,60 @@ public class SudoNode {
                 for(int k=0; 9>k; k++) domains[i][j].add(k+1);
             }
         }
+    }
+    
+    public void clean(){
+        parent=null;
+        domains = new ArrayList[9][];
+        for(int i=0; 9>i; i++){
+            domains[i] = new ArrayList[9];
+            for(int j=0; 9>j; j++){
+                domains[i][j] = new ArrayList();
+                for(int k=0; 9>k; k++) domains[i][j].add(k+1);
+            }
+        }
+        
+        for(int i=0; 9>i; i++){
+            for(int j=0; 9>j; j++){
+                chainUpdateDomains(i, j);
+            }
+        }        
+    }
+    
+    private void chainUpdateDomains(int i, int j){
+        if(cells[i][j] == 0) return;
+        domains[i][j] = null;
+        
+        for(int k=0; 9>k; k++) if(k!=j && domains[i][k]!=null) domains[i][k].remove((Object) cells[i][j]);
+        for(int k=0; 9>k; k++) if(k!=i && domains[k][j]!=null) domains[k][j].remove((Object) cells[i][j]);
+
+        int sr = ((int)(i/3))*3;
+        int sc = ((int)(j/3))*3;
+        for(int m=0; 3>m; m++){
+            for(int n=0; 3>n; n++){
+                if((sr+m)!=i && (sc+n)!=j && domains[sr+m][sc+n]!=null)
+                    domains[sr+m][sc+n].remove((Object) cells[i][j]);
+            }
+        }        
+    }
+    
+    public boolean isValid(){
+        for(int i=0; 9>i; i++){
+            for(int j=0; 9>j; j++){
+                if(isDuplicateCell(i, j, cells[i][j])) return false;
+            }
+        }
+        return true;        
+    }
+    
+    public boolean isSolved(){
+        for(int i=0; 9>i; i++){
+            for(int j=0; 9>j; j++){
+                if(cells[i][j] == 0) return false;
+            }
+        }
+        if(!isValid()) return false;
+        return true;
     }
     
     public void printSudoku(){
@@ -71,7 +107,8 @@ public class SudoNode {
         }
     }
     
-    private boolean isDuplicateInput(int i, int j, int value){
+    private boolean isDuplicateCell(int i, int j, int value){
+        if(value==0) return false;
         for(int k=0; 9>k; k++) if(k!=j && cells[i][k]==value) return true;
         for(int k=0; 9>k; k++) if(k!=i && cells[k][j]==value) return true;
         
@@ -87,7 +124,9 @@ public class SudoNode {
     
     public void inputSudoku(){
         StylishPrinter.println("Entering Sudoku", StylishPrinter.BOLD_RED);
-        System.out.println("Help: Enter <row,column,value> or <10> to reset sudoku or <0> to end!");
+        StylishPrinter.println("Help", StylishPrinter.BOLD_YELLOW);
+        System.out.println("Enter <row,column,value> or <10> to reset sudoku or <0> to end!");
+        System.out.println("Enter 0 value for clear a cell");
         
         while(true){
             System.out.println();
@@ -138,7 +177,7 @@ public class SudoNode {
                 
                 i--;
                 j--;
-                if(isDuplicateInput(i, j, value)){
+                if(isDuplicateCell(i, j, value)){
                     System.out.print("Duplicate value! Try Again: ");
                     continue;
                 }
@@ -147,6 +186,26 @@ public class SudoNode {
                 break;
             }
         }
+    }
+    
+    public SudoNode getChild(int icell, int jcell, int value){
+        int[][] childCells = new int[9][];
+        for(int i=0; 9>i; i++) childCells[i] = new int[9];
+        for(int i=0; 9>i; i++) for(int j=0; 9>j; j++) childCells[i][j] = cells[i][j];
+        childCells[icell][jcell] = value;
+        
+        ArrayList[][] childDomains = new ArrayList[9][];
+        for(int i=0; 9>i; i++){
+            childDomains[i] = new ArrayList[9];
+            for(int j=0; 9>j; j++){
+                if(domains[i][j] == null) childDomains[i][j]=null;
+                else childDomains[i][j] = (ArrayList) domains[i][j].clone();
+            }
+        }
+        
+        SudoNode childNode = new SudoNode(this, childCells, childDomains);
+        childNode.chainUpdateDomains(icell, jcell);
+        return childNode;
     }
 
 }
