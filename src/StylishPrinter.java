@@ -1,6 +1,5 @@
-
-
 import java.util.Stack;
+import org.fusesource.jansi.AnsiConsole;
 
 public class StylishPrinter {
     public static final String RESET = "\u001B[0m";
@@ -33,14 +32,12 @@ public class StylishPrinter {
     public static final String BG_WHITE = "\u001B[47m";
     
     public static void print(String str, String fgcolor, String bgcolor){
-        if(OSDetecter.isWindows()){
-            
-        }
-        else{
-            if(fgcolor == null) fgcolor = "";
-            if(bgcolor == null) bgcolor = "";
+        if(fgcolor == null) fgcolor = "";
+        if(bgcolor == null) bgcolor = "";
+        if(OSDetecter.isWindows())
+            AnsiConsole.out.print(bgcolor + fgcolor + str + RESET);
+        else
             System.out.print(bgcolor + fgcolor + str + RESET);
-        }
     }
     
     public static void print(String str, String fgcolor){
