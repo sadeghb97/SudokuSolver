@@ -3,12 +3,17 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class SudokuSolutions {
+    public static int createdNodes = 0;
+    public static int iterations = 0;
+    
     public static SudoNode forwardChecking(SudoNode node){
         if(!node.isValid()) throw new RuntimeException();
+        createdNodes = 0;
         return fc(node);
     }
     
     private static SudoNode fc(SudoNode node){
+        createdNodes++;
         if(node.isSolved()) return node;
         
         int icell=-1,jcell=-1;
@@ -35,10 +40,12 @@ public class SudokuSolutions {
     
     public static SudoNode forwardCheckingWithMVR(SudoNode node){
         if(!node.isValid()) throw new RuntimeException();
-        return fc(node);
+        createdNodes = 0;
+        return fcmvr(node);
     }
     
     private static SudoNode fcmvr(SudoNode node){
+        createdNodes++;
         if(node.isSolved()) return node;
         
         int icell=-1,jcell=-1;
@@ -47,7 +54,7 @@ public class SudokuSolutions {
         for(int i=0; 9>i; i++){
             for(int j=0; 9>j; j++){
                 if(node.getCells()[i][j] == 0 &&
-                        (i==-1 || node.getDomains()[i][j].size()<minDomain)){
+                        (icell==-1 || node.getDomains()[i][j].size()<minDomain)){
                     icell=i;
                     jcell=j;
                     minDomain = node.getDomains()[i][j].size();
@@ -83,7 +90,7 @@ public class SudokuSolutions {
             }
         }
         
-        int iterations = 0;
+        iterations = 0;
         while(true){
             if(node.isSolved()) return node;
             int sumc = node.getNumConflicts();

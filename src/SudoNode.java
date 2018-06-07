@@ -3,16 +3,13 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class SudoNode {
-    private SudoNode parent;
     private int[][] cells;
     private ArrayList[][] domains;
 
-    public SudoNode getParent() { return parent;}
     public int[][] getCells() { return cells;}
     public ArrayList[][] getDomains() { return domains;}
     
-    public SudoNode(SudoNode parent, int[][] cells, ArrayList[][] domains){
-        this.parent = parent;
+    public SudoNode(int[][] cells, ArrayList[][] domains){
         this.cells = cells;
         this.domains = domains;
     }
@@ -23,7 +20,6 @@ public class SudoNode {
     }
 
     public SudoNode() {
-        parent=null;
         cells = new int[9][];
         for(int i=0; 9>i; i++) cells[i] = new int[9];
         domains = new ArrayList[9][];
@@ -37,7 +33,6 @@ public class SudoNode {
     }
     
     public void clean(){
-        parent=null;
         domains = new ArrayList[9][];
         for(int i=0; 9>i; i++){
             domains[i] = new ArrayList[9];
@@ -123,7 +118,6 @@ public class SudoNode {
     }
     
     public void inputSudoku(){
-        StylishPrinter.println("Entering Sudoku", StylishPrinter.BOLD_RED);
         StylishPrinter.println("Help", StylishPrinter.BOLD_YELLOW);
         System.out.println("Enter <row,column,value> or <10> to reset sudoku or <0> to end!");
         System.out.println("Enter 0 value for clear a cell");
@@ -203,7 +197,7 @@ public class SudoNode {
             }
         }
         
-        SudoNode childNode = new SudoNode(this, childCells, childDomains);
+        SudoNode childNode = new SudoNode(childCells, childDomains);
         childNode.chainUpdateDomains(icell, jcell);
         return childNode;
     }
