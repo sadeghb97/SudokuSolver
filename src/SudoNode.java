@@ -112,8 +112,8 @@ public class SudoNode {
         for(int k=0; 9>k; k++) if(k!=j && cells[i][k]==value) return true;
         for(int k=0; 9>k; k++) if(k!=i && cells[k][j]==value) return true;
         
-        int sr = ((int)(i/3))*3;
-        int sc = ((int)(j/3))*3;
+        int sr = i/3*3;
+        int sc = j/3*3;
         for(int m=0; 3>m; m++){
             for(int n=0; 3>n; n++){
                 if((sr+m)!=i && (sc+n)!=j && cells[sr+m][sc+n]==value) return true;
@@ -206,6 +206,39 @@ public class SudoNode {
         SudoNode childNode = new SudoNode(this, childCells, childDomains);
         childNode.chainUpdateDomains(icell, jcell);
         return childNode;
+    }
+    
+    public int getNumConflicts(){
+        int sumc=0;
+        for(int i=0; 9>i; i++){
+            for(int j=0; 9>j; j++){
+                if(cells[i][j]==0) continue;
+                
+                for(int k=j+1; 9>k; k++) if(cells[i][k] == cells[i][j]) sumc++;
+                for(int k=i+1; 9>k; k++) if(cells[k][j] == cells[i][j]) sumc++;
+                
+                int maxr = i/3*3 + 3;
+                int maxc = j/3*3 + 3;
+                for(int m=i; maxr>m; m++){
+                    int n;
+                    if(m==i) n=j;
+                    else n=j/3*3;
+                    for(; maxc>n; n++){
+                        if(m==i || n==j) continue;
+                        if(cells[m][n] == cells[i][j]) sumc++;
+                    }
+                }
+            }
+        }
+        return sumc;
+    }
+    
+    public static int getNumConflicts(SudoNode node, int i, int j, int value){
+        int oldValue = node.getCells()[i][j];
+        node.getCells()[i][j] = value;
+        int sumc = node.getNumConflicts();
+        node.getCells()[i][j] = oldValue;
+        return sumc;
     }
 
 }
