@@ -20,16 +20,13 @@ public class SudoNode {
     }
 
     public SudoNode() {
+        clear();
+    }
+    
+    public void clear(){
         cells = new int[9][];
         for(int i=0; 9>i; i++) cells[i] = new int[9];
-        domains = new ArrayList[9][];
-        for(int i=0; 9>i; i++){
-            domains[i] = new ArrayList[9];
-            for(int j=0; 9>j; j++){
-                domains[i][j] = new ArrayList();
-                for(int k=0; 9>k; k++) domains[i][j].add(k+1);
-            }
-        }
+        clean();        
     }
     
     public void clean(){
@@ -131,7 +128,10 @@ public class SudoNode {
             while(true){
                 String inpStr = new Scanner(System.in).nextLine().trim();
                 if(inpStr.equals("0")) return;
-                if(inpStr.equals("10")) break;
+                if(inpStr.equals("10")){
+                    clear();
+                    break;
+                }
                 
                 String[] strs = inpStr.split(" ");
                 if(strs.length != 3){
